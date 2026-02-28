@@ -1,18 +1,21 @@
 /**
- * Reusable SSR build function for esbuild.
+ * Reusable SSR build configuration for esbuild.
  * 
- * Merges user-provided options with sensible defaults for Vue SSR
- * targeting QuickJS/Goja/V8go runtimes.
+ * Returns a complete esbuild BuildOptions object with sensible defaults
+ * for Vue SSR targeting QuickJS/Goja/V8go runtimes.
+ * 
+ * The project calls esbuild.build() itself — this avoids peer dependency
+ * resolution issues with linked packages.
  */
-import { build, type BuildOptions } from 'esbuild'
+import path from 'node:path'
 import { quickjsPolyfills } from './polyfills'
 
-export interface SSRBuildOptions {
+export interface SSRBuildUserOptions {
   /** Entry point file (default: './ssr-render.ts') */
   entryPoints?: string[]
   /** Output file path (default: 'dist/ssr-render-cjs.js') */
   outfile?: string
-  /** Additional esbuild plugins (vuePlugin is required) */
+  /** esbuild plugins (vuePlugin is required) */
   plugins: any[]
   /** Path aliases (merged with defaults) */
   alias?: Record<string, string>
@@ -21,7 +24,7 @@ export interface SSRBuildOptions {
   /** Enable minification (default: true for syntax/whitespace/identifiers) */
   minify?: boolean
   /** Any additional esbuild options to merge */
-  esbuildOptions?: Partial<BuildOptions>
+  esbuildOptions?: Record<string, any>
 }
 
 const defaultAlias: Record<string, string> = {
@@ -44,7 +47,15 @@ const vueDefines: Record<string, string> = {
   'process.env.VUE_ENV': '"server"',
 }
 
-export async function buildSSR(options: SSRBuildOptions): Promise<void> {
+/**
+ * Create esbuild options for SSR builds.
+ * 
+ * Usage:
+ *   import { build } from 'esbuild'
+ *   import { createSSRBuildOptions } from '@millken/inertia-vue/ssr-build'
+ *   build(createSSRBuildOptions({ plugins: [vuePlugin()] }))
+ */
+export function createSSRBuildOptions(options: SSRBuildUserOptions): Record<string, any> {
   const {
     entryPoints = ['./ssr-render.ts'],
     outfile = 'dist/ssr-render-cjs.js',
@@ -55,7 +66,7 @@ export async function buildSSR(options: SSRBuildOptions): Promise<void> {
     esbuildOptions = {},
   } = options
 
-  const buildOptions: BuildOptions = {
+  return {
     entryPoints,
     bundle: true,
     platform: 'node',
@@ -68,6 +79,9 @@ export async function buildSSR(options: SSRBuildOptions): Promise<void> {
 
     resolveExtensions: ['.vue', '.js', '.ts'],
     alias: { ...defaultAlias, ...alias },
+
+    // Resolve packages from the project's node_modules (needed for linked packages)
+    nodePaths: [path.resolve(process.cwd(), 'node_modules')],
 
     // Minification
     minify: false,
@@ -92,6 +106,4 @@ export async function buildSSR(options: SSRBuildOptions): Promise<void> {
     // Allow user overrides
     ...esbuildOptions,
   }
-
-  await build(buildOptions)
 }
