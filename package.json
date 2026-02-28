@@ -1,0 +1,42 @@
+{
+  "name": "@millken/inertia-vue",
+  "version": "0.1.0",
+  "description": "Vue 3 SSR toolkit for Inertia Go framework (QuickJS/Goja/V8go compatible)",
+  "type": "module",
+  "bin": {
+    "inertia-vue": "./bin/cli.mjs"
+  },
+  "exports": {
+    ".": {
+      "import": "./src/runtime/index.ts",
+      "types": "./src/runtime/index.ts"
+    },
+    "./ssr-render": {
+      "import": "./src/ssr/ssr-render.ts",
+      "types": "./src/ssr/ssr-render.ts"
+    },
+    "./ssr-build": {
+      "import": "./src/ssr/build.ts",
+      "types": "./src/ssr/build.ts"
+    }
+  },
+  "files": [
+    "src",
+    "bin"
+  ],
+  "scripts": {
+    "test": "echo 'no tests yet'"
+  },
+  "keywords": ["vue", "ssr", "inertia", "quickjs", "esbuild"],
+  "license": "MIT",
+  "peerDependencies": {
+    "vue": "^3.5.0",
+    "esbuild": "^0.20.0 || ^0.21.0 || ^0.22.0 || ^0.23.0 || ^0.24.0 || ^0.25.0",
+    "millken-esbuild-plugin-vue": ">=0.9.0"
+  },
+  "peerDependenciesMeta": {
+    "esbuild": { "optional": false },
+    "millken-esbuild-plugin-vue": { "optional": false }
+  },
+  "dependencies": {}
+}
