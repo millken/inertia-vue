@@ -52,7 +52,7 @@ const vueDefines: Record<string, string> = {
  * 
  * Usage:
  *   import { build } from 'esbuild'
- *   import { createSSRBuildOptions } from '@millken/inertia-vue/ssr-build'
+ *   import { createSSRBuildOptions } from 'millken-inertia-vue/ssr-build'
  *   build(createSSRBuildOptions({ plugins: [vuePlugin()] }))
  */
 export function createSSRBuildOptions(options: SSRBuildUserOptions): Record<string, any> {

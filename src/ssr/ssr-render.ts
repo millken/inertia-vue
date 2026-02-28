@@ -6,7 +6,7 @@
  * are called via `module.exports.inertiaRenderComponent(name, jsonProps)`.
  * 
  * Usage in project's ssr-render.ts:
- *   import { createSSRRender } from '@millken/inertia-vue/ssr-render'
+ *   import { createSSRRender } from 'millken-inertia-vue/ssr-render'
  *   import ssrModules from './ssr-modules'
  *   const { inertiaRenderComponent, inertiaRenderTemplate } = createSSRRender(ssrModules)
  *   export { inertiaRenderComponent, inertiaRenderTemplate }

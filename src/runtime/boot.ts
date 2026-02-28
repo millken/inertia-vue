@@ -10,7 +10,7 @@ interface PageData {
  * Call this in your main.ts with the modules map.
  *
  * Example:
- *   import { boot } from '@millken/inertia-vue'
+ *   import { boot } from 'millken-inertia-vue'
  *   import { modules } from './inertia/modules'
  *   boot(modules)
  */
