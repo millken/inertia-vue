@@ -1,21 +1,19 @@
 /**
- * SSR render functions for Inertia.
- * 
- * These are used as the entry point for SSR bundles. The bundle is evaluated 
- * by the Go server's JS runtime (QuickJS/Goja/V8go) and the exported functions
- * are called via `module.exports.inertiaRenderComponent(name, jsonProps)`.
- * 
- * Usage in project's ssr-render.ts:
- *   import { createSSRRender } from 'millken-inertia-vue/ssr-render'
- *   import ssrModules from './ssr-modules'
- *   const { inertiaRenderComponent, inertiaRenderTemplate } = createSSRRender(ssrModules)
- *   export { inertiaRenderComponent, inertiaRenderTemplate }
+ * SSR render functions exported to the Go runtime.
+ *
+ * Bundle is evaluated by QuickJS / Goja / V8go; functions are reached via
+ *   module.exports.inertiaRenderComponent(name, jsonProps)
  */
 import { renderToString } from 'vue/server-renderer'
-import { createSSRApp, h, type Component } from 'vue'
+import { createSSRApp, h, type App, type Component } from 'vue'
 
 type PropRecord = Record<string, any>
 type ModulesMap = Record<string, Component>
+
+export interface SSRRenderOptions {
+  /** Hook to register Vue plugins / global components on each SSR app. */
+  setup?: (app: App) => void
+}
 
 function parseProps(input?: PropRecord | string): PropRecord {
   if (typeof input === 'string') {
@@ -30,7 +28,7 @@ function parseProps(input?: PropRecord | string): PropRecord {
   return (input ?? {}) as PropRecord
 }
 
-export function createSSRRender(modules: ModulesMap) {
+export function createSSRRender(modules: ModulesMap, opts: SSRRenderOptions = {}) {
   async function inertiaRenderComponent(
     componentName: string,
     props?: PropRecord | string,
@@ -45,6 +43,7 @@ export function createSSRRender(modules: ModulesMap) {
         return h(component, parsedProps)
       },
     })
+    if (opts.setup) opts.setup(app)
     return renderToString(app)
   }
 
@@ -62,8 +61,11 @@ export function createSSRRender(modules: ModulesMap) {
         return h(tempComponent)
       },
     })
+    if (opts.setup) opts.setup(app)
     return renderToString(app)
   }
 
   return { inertiaRenderComponent, inertiaRenderTemplate }
 }
+
+export { parseProps }
